@@ -2,5 +2,4 @@
     <string name="app_name">PC2</string>
     <string name="apod_summary">Total: %1$d, Imágenes (%2$d), Videos (%3$d)</string>
     <string name="apod_summary_other">, Otros (%1$d)</string>
-    <string name="apod_summary_last_success">Última consulta exitosa:</string>
 </resources>

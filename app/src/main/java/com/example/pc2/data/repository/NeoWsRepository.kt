@@ -2,6 +2,7 @@ package com.example.pc2.data.repository
 
 import android.content.Context
 import com.example.pc2.data.local.AppDatabase
+import com.example.pc2.data.local.neows.AsteroidDao
 import com.example.pc2.data.local.neows.AsteroidEntity
 import com.example.pc2.data.remote.RetrofitClient
 import com.example.pc2.data.remote.neows.NeoWsApiService
@@ -9,15 +10,20 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class NeoWsRepository(context: Context) {
-    private val database = AppDatabase.getInstance(context)
-    private val asteroidDao = database.asteroidDao()
-    private val apiService = RetrofitClient.apiRetrofit.create(NeoWsApiService::class.java)
+class NeoWsRepository(
+    private val asteroidDao: AsteroidDao,
+    private val apiService: NeoWsApiService
+) {
+    constructor(context: Context) : this(
+        AppDatabase.getInstance(context).asteroidDao(),
+        RetrofitClient.apiRetrofit.create(NeoWsApiService::class.java)
+    )
 
     val allAsteroids: Flow<List<AsteroidEntity>> = asteroidDao.getAllAsteroids()
     val favoriteAsteroids: Flow<List<AsteroidEntity>> = asteroidDao.getFavoriteAsteroids()
 
     suspend fun refreshAsteroids(apiKey: String) {
+        check(apiKey.isNotBlank()) { "Falta NASA_API_KEY en local.properties." }
         val endDate = LocalDate.now()
         val startDate = endDate.minusDays(6)
         val formatter = DateTimeFormatter.ISO_LOCAL_DATE
@@ -28,7 +34,6 @@ class NeoWsRepository(context: Context) {
             apiKey = apiKey
         )
 
-        val currentFavorites = asteroidDao.getFavoriteIds().toSet()
         val remoteAsteroids = mutableListOf<AsteroidEntity>()
 
         response.nearEarthObjects?.values?.flatten()?.forEach { dto ->
@@ -44,8 +49,6 @@ class NeoWsRepository(context: Context) {
             val velocity = approachData?.relativeVelocity?.kilometersPerHour?.toDoubleOrNull() ?: 0.0
             val distance = approachData?.missDistance?.kilometers?.toDoubleOrNull() ?: 0.0
 
-            val isFav = currentFavorites.contains(id)
-
             remoteAsteroids.add(
                 AsteroidEntity(
                     id = id,
@@ -55,8 +58,7 @@ class NeoWsRepository(context: Context) {
                     estimatedDiameterMax = diameterMax,
                     relativeVelocity = velocity,
                     missDistance = distance,
-                    isPotentiallyHazardous = isHazardous,
-                    isFavorite = isFav
+                    isPotentiallyHazardous = isHazardous
                 )
             )
         }
@@ -66,11 +68,9 @@ class NeoWsRepository(context: Context) {
         }
     }
 
-    suspend fun getAsteroidById(id: String): AsteroidEntity? {
-        return asteroidDao.getAsteroidById(id)
-    }
+    fun observeAsteroidById(id: String): Flow<AsteroidEntity?> = asteroidDao.observeAsteroidById(id)
 
-    suspend fun toggleFavorite(id: String, isFavorite: Boolean) {
-        asteroidDao.updateFavoriteStatus(id, isFavorite)
+    suspend fun toggleFavorite(id: String) {
+        asteroidDao.toggleFavorite(id)
     }
 }
