@@ -1,6 +1,7 @@
 package com.example.pc2.ui.neows
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pc2.BuildConfig
@@ -12,6 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.net.UnknownHostException
+import java.net.SocketTimeoutException
 
 sealed interface NeoWsUiState {
     object Loading : NeoWsUiState
@@ -68,7 +71,13 @@ class NeoWsViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 repository.refreshAsteroids(BuildConfig.NASA_API_KEY)
             } catch (e: Exception) {
-                _errorMessage.value = "Error al sincronizar: ${e.localizedMessage ?: "Desconocido"}"
+                Log.e("NeoWsViewModel", "Error al sincronizar datos de NeoWs: ${e.javaClass.simpleName} - ${e.localizedMessage}")
+                val message = if (e is UnknownHostException || e is SocketTimeoutException) {
+                    "Sin conexión a internet. Mostrando datos guardados en caché."
+                } else {
+                    "Error al sincronizar con el servidor. Mostrando datos guardados."
+                }
+                _errorMessage.value = message
             } finally {
                 _isRefreshing.value = false
             }

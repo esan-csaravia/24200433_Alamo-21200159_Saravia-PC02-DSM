@@ -10,12 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.pc2.data.local.neows.AsteroidEntity
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,65 +58,107 @@ fun AsteroidDetailScreen(
             } else if (asteroid == null) {
                 Text(
                     text = "No se encontró información del asteroide.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
                 val item = asteroid!!
-                val minDiameterStr = String.format(Locale.US, "%.2f", item.estimatedDiameterMin)
-                val maxDiameterStr = String.format(Locale.US, "%.2f", item.estimatedDiameterMax)
-                val velocityStr = String.format(Locale.US, "%.2f", item.relativeVelocity)
-                val distanceStr = String.format(Locale.US, "%.2f", item.missDistance)
+                val minDiameterStr = formatNumber(item.estimatedDiameterMin)
+                val maxDiameterStr = formatNumber(item.estimatedDiameterMax)
+                val velocityStr = formatNumber(item.relativeVelocity)
+                val distanceStr = formatNumber(item.missDistance)
 
-                Column(
+                Card(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(
-                            text = item.name,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1f)
-                        )
-                        IconButton(onClick = {
-                            viewModel.toggleFavorite(item)
-                            asteroid = item.copy(isFavorite = !item.isFavorite)
-                        }) {
-                            Icon(
-                                imageVector = if (item.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "Favorito",
-                                tint = if (item.isFavorite) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(32.dp)
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = item.name.ifBlank { "Asteroide Sin Nombre" },
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                if (item.isPotentiallyHazardous) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Warning,
+                                            contentDescription = "Peligroso",
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Text(
+                                            text = "Potencialmente peligroso",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.error,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                }
+                            }
+                            IconButton(onClick = {
+                                viewModel.toggleFavorite(item)
+                                asteroid = item.copy(isFavorite = !item.isFavorite)
+                            }) {
+                                Icon(
+                                    imageVector = if (item.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                    contentDescription = "Favorito",
+                                    tint = if (item.isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
                         }
-                    }
 
-                    Divider()
+                        Divider(color = MaterialTheme.colorScheme.outlineVariant)
 
-                    DetailRow(label = "ID NASA:", value = item.id)
-                    DetailRow(label = "Fecha de aproximación:", value = item.closeApproachDate)
-                    DetailRow(label = "Diámetro estimado:", value = "$minDiameterStr m - $maxDiameterStr m")
-                    DetailRow(label = "Velocidad relativa:", value = "$velocityStr km/h")
-                    DetailRow(label = "Distancia de paso:", value = "$distanceStr km")
+                        DetailRow(label = "ID NASA:", value = item.id.ifBlank { "No disponible" })
+                        DetailRow(label = "Fecha de aproximación:", value = item.closeApproachDate.ifBlank { "No disponible" })
+                        DetailRow(label = "Diámetro estimado:", value = "$minDiameterStr m - $maxDiameterStr m")
+                        DetailRow(label = "Velocidad relativa:", value = "$velocityStr km/h")
+                        DetailRow(label = "Distancia de paso:", value = "$distanceStr km")
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(text = "Peligroso potencialmente:", fontWeight = FontWeight.SemiBold)
-                        if (item.isPotentiallyHazardous) {
-                            Icon(
-                                imageVector = Icons.Default.Warning,
-                                contentDescription = "Peligroso",
-                                tint = Color.Red
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Estado de peligro:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Text(text = "SÍ", color = Color.Red, fontWeight = FontWeight.Bold)
-                        } else {
-                            Text(text = "NO", color = Color.Green, fontWeight = FontWeight.Bold)
+                            Surface(
+                                shape = MaterialTheme.shapes.small,
+                                color = if (item.isPotentiallyHazardous) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Text(
+                                    text = if (item.isPotentiallyHazardous) "PELIGROSO" else "NO PELIGROSO",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (item.isPotentiallyHazardous) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
@@ -133,7 +173,16 @@ fun DetailRow(label: String, value: String) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = label, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(text = value, fontWeight = FontWeight.Bold)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
