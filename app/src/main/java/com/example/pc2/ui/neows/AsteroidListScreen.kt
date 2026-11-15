@@ -8,13 +8,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.pc2.data.local.neows.AsteroidEntity
 import java.text.NumberFormat
@@ -46,7 +46,7 @@ fun AsteroidListScreen(
                 title = { Text("Asteroides (NeoWs)") },
                 actions = {
                     IconButton(onClick = onNavigateToFavorites) {
-                        Icon(Icons.Default.Star, contentDescription = "Mis asteroides")
+                        Icon(Icons.Default.Favorite, contentDescription = "Mis asteroides favoritos")
                     }
                     IconButton(onClick = { viewModel.fetchAsteroids() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Actualizar")
@@ -135,9 +135,11 @@ fun AsteroidListScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "No se encontraron asteroides.",
+                                    text = "No se encontraron asteroides para los últimos 7 días.",
                                     style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(horizontal = 24.dp)
                                 )
                             }
                         } else {
@@ -193,10 +195,11 @@ fun AsteroidItemCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier
@@ -246,7 +249,7 @@ fun AsteroidItemCard(
                 }
             }
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

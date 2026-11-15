@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.net.UnknownHostException
 import java.net.SocketTimeoutException
+import java.time.LocalDate
 
 sealed interface NeoWsUiState {
     object Loading : NeoWsUiState
@@ -42,11 +43,26 @@ class NeoWsViewModel(application: Application) : AndroidViewModel(application) {
         _isRefreshing,
         _errorMessage
     ) { all, favs, onlyHazardous, refreshing, errorMsg ->
-        val filtered = if (onlyHazardous) {
-            all.filter { it.isPotentiallyHazardous }
-        } else {
-            all
+        // Limit main list strictly to the last 7 days (today - 6 days to today),
+        // even though Room may retain favorite asteroids from previous dates.
+        val today = LocalDate.now()
+        val startDate = today.minusDays(6)
+
+        val recentAsteroids = all.filter { asteroid ->
+            try {
+                val date = LocalDate.parse(asteroid.closeApproachDate)
+                !date.isBefore(startDate) && !date.isAfter(today)
+            } catch (e: Exception) {
+                true
+            }
         }
+
+        val filtered = if (onlyHazardous) {
+            recentAsteroids.filter { it.isPotentiallyHazardous }
+        } else {
+            recentAsteroids
+        }
+
         NeoWsUiState.Success(
             asteroids = filtered,
             favorites = favs,
