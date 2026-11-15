@@ -67,29 +67,20 @@ fun ApodListScreen(
                 LinearProgressIndicator(Modifier.fillMaxWidth())
             }
             uiState.errorMessage?.let { ErrorMessage(it, onRefresh) }
-            uiState.summary?.let { summary ->
-                val text = stringResource(
-                    R.string.apod_summary,
-                    summary.total,
-                    summary.images,
-                    summary.videos
-                )
-                val other = if (summary.other > 0) {
-                    stringResource(R.string.apod_summary_other, summary.other)
-                } else {
-                    ""
-                }
-                val prefix = if (uiState.errorMessage != null) {
-                    stringResource(R.string.apod_summary_last_success) + " "
-                } else {
-                    ""
-                }
-                Text(
-                    text = prefix + text + other,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                    style = MaterialTheme.typography.titleSmall
-                )
+            val imageCount = images.count { it.mediaType.equals("image", ignoreCase = true) }
+            val videoCount = images.count { it.isVideo() }
+            val otherCount = images.size - imageCount - videoCount
+            val summary = stringResource(R.string.apod_summary, images.size, imageCount, videoCount)
+            val other = if (otherCount > 0) {
+                stringResource(R.string.apod_summary_other, otherCount)
+            } else {
+                ""
             }
+            Text(
+                text = summary + other,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.titleSmall
+            )
             if (images.isEmpty()) {
                 EmptyContent(
                     message = if (uiState.isRefreshing) {

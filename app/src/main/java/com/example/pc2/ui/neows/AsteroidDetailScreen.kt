@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.pc2.data.local.neows.AsteroidEntity
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,16 +22,8 @@ fun AsteroidDetailScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var asteroid by remember { mutableStateOf<AsteroidEntity?>(null) }
-    var isLoading by remember { mutableStateOf(true) }
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(asteroidId) {
-        scope.launch {
-            asteroid = viewModel.getAsteroidDetail(asteroidId)
-            isLoading = false
-        }
-    }
+    val asteroidFlow = remember(asteroidId, viewModel) { viewModel.observeAsteroidDetail(asteroidId) }
+    val asteroid by asteroidFlow.collectAsState(initial = null)
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -53,9 +44,7 @@ fun AsteroidDetailScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (asteroid == null) {
+            if (asteroid == null) {
                 Text(
                     text = "No se encontró información del asteroide.",
                     style = MaterialTheme.typography.bodyLarge,
@@ -117,7 +106,6 @@ fun AsteroidDetailScreen(
                             }
                             IconButton(onClick = {
                                 viewModel.toggleFavorite(item)
-                                asteroid = item.copy(isFavorite = !item.isFavorite)
                             }) {
                                 Icon(
                                     imageVector = if (item.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,

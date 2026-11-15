@@ -39,7 +39,7 @@ class AppNavGraphTest {
     }
 
     @Test
-    fun bottomBarSwitchesBetweenImagesAndPendingAsteroids() {
+    fun bottomBarSwitchesBetweenImagesAndAsteroids() {
         val api = object : ApodApi {
             override suspend fun getApods(
                 apiKey: String,
@@ -52,7 +52,7 @@ class AppNavGraphTest {
 
         composeRule.onNodeWithText("Imágenes").assertIsSelected()
         composeRule.onNodeWithText("Asteroides").performClick().assertIsSelected()
-        composeRule.onNodeWithText("Sección de asteroides pendiente.").assertExists()
+        composeRule.onNodeWithText("Asteroides (NeoWs)").assertExists()
         composeRule.onNodeWithText("Imágenes").performClick().assertIsSelected()
         composeRule.onNodeWithText("Imágenes APOD").assertExists()
     }

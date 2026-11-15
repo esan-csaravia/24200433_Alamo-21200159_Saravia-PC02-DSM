@@ -88,7 +88,9 @@ class NeoWsViewModel(application: Application) : AndroidViewModel(application) {
                 repository.refreshAsteroids(BuildConfig.NASA_API_KEY)
             } catch (e: Exception) {
                 Log.e("NeoWsViewModel", "Error al sincronizar datos de NeoWs: ${e.javaClass.simpleName} - ${e.localizedMessage}")
-                val message = if (e is UnknownHostException || e is SocketTimeoutException) {
+                val message = if (e is IllegalStateException && BuildConfig.NASA_API_KEY.isBlank()) {
+                    "Falta NASA_API_KEY en local.properties."
+                } else if (e is UnknownHostException || e is SocketTimeoutException) {
                     "Sin conexión a internet. Mostrando datos guardados en caché."
                 } else {
                     "Error al sincronizar con el servidor. Mostrando datos guardados."
@@ -106,11 +108,9 @@ class NeoWsViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleFavorite(asteroid: AsteroidEntity) {
         viewModelScope.launch {
-            repository.toggleFavorite(asteroid.id, !asteroid.isFavorite)
+            repository.toggleFavorite(asteroid.id)
         }
     }
 
-    suspend fun getAsteroidDetail(id: String): AsteroidEntity? {
-        return repository.getAsteroidById(id)
-    }
+    fun observeAsteroidDetail(id: String) = repository.observeAsteroidById(id)
 }

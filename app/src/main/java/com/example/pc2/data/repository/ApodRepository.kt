@@ -8,14 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-data class ApodSummary(
-    val total: Int,
-    val images: Int,
-    val videos: Int
-) {
-    val other: Int get() = total - images - videos
-}
-
 class ApodRepository(
     private val dao: ApodDao,
     private val api: ApodApi,
@@ -27,7 +19,7 @@ class ApodRepository(
 
     fun observeImage(date: String): Flow<ApodEntity?> = dao.observeByDate(date)
 
-    suspend fun refreshLastSevenDays(): ApodSummary {
+    suspend fun refreshLastSevenDays() {
         check(apiKey.isNotBlank()) {
             "Falta NASA_API_KEY en local.properties."
         }
@@ -44,11 +36,6 @@ class ApodRepository(
                 credit = apod.credit
             )
         }
-        return ApodSummary(
-            total = results.size,
-            images = results.count { it.mediaType.equals("image", ignoreCase = true) },
-            videos = results.count { it.mediaType.equals("video", ignoreCase = true) }
-        )
     }
 
     suspend fun toggleFavorite(date: String) {

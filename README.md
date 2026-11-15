@@ -1,8 +1,8 @@
 # Práctica Calificada 02 (DSM) - Diario espacial
 
-Este proyecto combina la infraestructura compartida con la opción de imágenes APOD para la **Práctica Calificada 02 (DSM)**, utilizando **Kotlin** y **Jetpack Compose**. La opción de asteroides permanece como pantalla pendiente.
+Este proyecto implementa las opciones de imágenes APOD y asteroides NeoWs para la **Práctica Calificada 02 (DSM)**, utilizando **Kotlin** y **Jetpack Compose**.
 
-APOD muestra los totales de imágenes y videos de la última respuesta exitosa de la API; los tipos no reconocidos se cuentan como «Otros». Los favoritos se guardan en Room y pueden consultarse y quitarse incluso sin conexión.
+APOD muestra los totales de imágenes y videos de la lista obtenida de Room; los tipos no reconocidos se cuentan como «Otros». Los favoritos se guardan en Room y pueden consultarse y quitarse incluso sin conexión.
 
 ---
 
@@ -38,8 +38,7 @@ com.example.pc2/
 ├── ui/
 │   ├── navigation/
 │   │   └── Screen.kt             # Rutas principales de imágenes y asteroides
-│   ├── screens/
-│   │   └── NeoWsPlaceholderScreen.kt  # Pantalla pendiente para asteroides
+│   ├── neows/                    # Pantallas y ViewModel de asteroides
 │   └── theme/                    # Tema Material 3
 └── MainActivity.kt               # Configuración y entrada a la aplicación
 ```
@@ -71,4 +70,4 @@ Las ramas de características deben integrarse sobre la infraestructura comparti
    - Implementar Repositorios que unifiquen el origen de datos remoto y local (Room).
    - Crear ViewModels utilizando `StateFlow` para exponer el estado UI de forma reactiva.
 4. **Pantallas Funcionales:**
-   - Mantener las pantallas APOD integradas en `AppNavGraph` y sustituir `NeoWsPlaceholderScreen` cuando se implemente la opción de asteroides.
+   - Mantener las pantallas APOD y NeoWs integradas en `AppNavGraph`.

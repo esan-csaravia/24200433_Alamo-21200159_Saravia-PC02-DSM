@@ -66,6 +66,9 @@ fun AsteroidListScreen(
                 }
                 is NeoWsUiState.Success -> {
                     Column(modifier = Modifier.fillMaxSize()) {
+                        if (state.isRefreshing) {
+                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        }
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
