@@ -19,7 +19,7 @@ fun NeoWsPlaceholderScreen(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "Pantalla Placeholder - NeoWs (Asteroides)",
+            text = "Sección de asteroides pendiente.",
             style = MaterialTheme.typography.titleLarge
         )
     }

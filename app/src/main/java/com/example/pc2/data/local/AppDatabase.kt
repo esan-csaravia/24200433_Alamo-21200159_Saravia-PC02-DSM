@@ -1,12 +1,25 @@
 package com.example.pc2.data.local
 
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 
-/**
- * Infraestructura base de Room compartida.
- * Las anotaciones @Database, Entities y DAOs definitivos serán implementados
- * e integrados conjuntamente por los módulos APOD y NeoWs en sus respectivas ramas.
- */
+@Database(entities = [ApodEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-    // Convenciones compartidas de Room para la base de datos centralizada de la app.
+    abstract fun apodDao(): ApodDao
+
+    companion object {
+        @Volatile
+        private var instance: AppDatabase? = null
+
+        fun getDatabase(context: Context): AppDatabase =
+            instance ?: synchronized(this) {
+                instance ?: Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "pc2_apod.db"
+                ).build().also { instance = it }
+            }
+    }
 }
