@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.pc2.R
 import com.example.pc2.data.local.ApodEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,6 +67,29 @@ fun ApodListScreen(
                 LinearProgressIndicator(Modifier.fillMaxWidth())
             }
             uiState.errorMessage?.let { ErrorMessage(it, onRefresh) }
+            uiState.summary?.let { summary ->
+                val text = stringResource(
+                    R.string.apod_summary,
+                    summary.total,
+                    summary.images,
+                    summary.videos
+                )
+                val other = if (summary.other > 0) {
+                    stringResource(R.string.apod_summary_other, summary.other)
+                } else {
+                    ""
+                }
+                val prefix = if (uiState.errorMessage != null) {
+                    stringResource(R.string.apod_summary_last_success) + " "
+                } else {
+                    ""
+                }
+                Text(
+                    text = prefix + text + other,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
             if (images.isEmpty()) {
                 EmptyContent(
                     message = if (uiState.isRefreshing) {

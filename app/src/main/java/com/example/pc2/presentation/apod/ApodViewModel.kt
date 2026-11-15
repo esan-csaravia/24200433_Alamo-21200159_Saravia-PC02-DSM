@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.pc2.data.local.ApodEntity
 import com.example.pc2.data.repository.ApodRepository
+import com.example.pc2.data.repository.ApodSummary
 import com.google.gson.JsonParseException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,8 +16,9 @@ import retrofit2.HttpException
 import java.io.IOException
 
 data class ApodUiState(
-    val isRefreshing: Boolean = true,
-    val errorMessage: String? = null
+    val isRefreshing: Boolean = false,
+    val errorMessage: String? = null,
+    val summary: ApodSummary? = null
 )
 
 class ApodViewModel(
@@ -35,11 +37,12 @@ class ApodViewModel(
     }
 
     fun refresh() {
+        if (_uiState.value.isRefreshing) return
+        _uiState.value = _uiState.value.copy(isRefreshing = true, errorMessage = null)
         viewModelScope.launch {
-            _uiState.value = ApodUiState(isRefreshing = true)
             try {
-                repository.refreshLastSevenDays()
-                _uiState.value = ApodUiState(isRefreshing = false)
+                val summary = repository.refreshLastSevenDays()
+                _uiState.value = _uiState.value.copy(isRefreshing = false, summary = summary)
             } catch (error: IOException) {
                 showError(error.message ?: "No se pudo conectar con NASA.")
             } catch (error: HttpException) {
@@ -59,7 +62,7 @@ class ApodViewModel(
     }
 
     private fun showError(message: String) {
-        _uiState.value = ApodUiState(isRefreshing = false, errorMessage = message)
+        _uiState.value = _uiState.value.copy(isRefreshing = false, errorMessage = message)
     }
 
     companion object {

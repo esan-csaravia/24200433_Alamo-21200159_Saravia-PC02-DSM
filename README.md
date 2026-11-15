@@ -2,6 +2,8 @@
 
 Este proyecto combina la infraestructura compartida con la opción de imágenes APOD para la **Práctica Calificada 02 (DSM)**, utilizando **Kotlin** y **Jetpack Compose**. La opción de asteroides permanece como pantalla pendiente.
 
+APOD muestra los totales de imágenes y videos de la última respuesta exitosa de la API; los tipos no reconocidos se cuentan como «Otros». Los favoritos se guardan en Room y pueden consultarse y quitarse incluso sin conexión.
+
 ---
 
 ## 🚀 Arquitectura y Tecnologías
