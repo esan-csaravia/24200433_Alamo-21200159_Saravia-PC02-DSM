@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,7 +23,10 @@ import com.example.pc2.presentation.apod.ApodFavoritesScreen
 import com.example.pc2.presentation.apod.ApodListScreen
 import com.example.pc2.presentation.apod.ApodViewModel
 import com.example.pc2.ui.navigation.Screen
-import com.example.pc2.ui.screens.NeoWsPlaceholderScreen
+import com.example.pc2.ui.neows.AsteroidDetailScreen
+import com.example.pc2.ui.neows.AsteroidListScreen
+import com.example.pc2.ui.neows.FavoritesScreen
+import com.example.pc2.ui.neows.NeoWsViewModel
 
 private const val APOD_FAVORITES_ROUTE = "apod/favorites"
 private const val APOD_DETAIL_ROUTE = "apod/{date}"
@@ -32,9 +36,11 @@ fun AppNavGraph(viewModel: ApodViewModel, modifier: Modifier = Modifier) {
     val images by viewModel.images.collectAsState(initial = emptyList())
     val favorites by viewModel.favorites.collectAsState(initial = emptyList())
     val uiState by viewModel.uiState.collectAsState()
+    val neoWsViewModel: NeoWsViewModel = viewModel()
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val isAsteroids = backStackEntry?.destination?.route == Screen.NeoWs.route
+    val currentRoute = backStackEntry?.destination?.route
+    val isAsteroids = currentRoute?.startsWith("neows") == true
 
     Scaffold(
         modifier = modifier,
@@ -44,7 +50,7 @@ fun AppNavGraph(viewModel: ApodViewModel, modifier: Modifier = Modifier) {
                     selected = !isAsteroids,
                     onClick = {
                         if (isAsteroids) {
-                            navController.popBackStack(Screen.NeoWs.route, inclusive = true)
+                            navController.popBackStack(Screen.Apod.route, inclusive = false)
                         }
                     },
                     icon = { Icon(Screen.Apod.icon, contentDescription = null) },
@@ -53,7 +59,13 @@ fun AppNavGraph(viewModel: ApodViewModel, modifier: Modifier = Modifier) {
                 NavigationBarItem(
                     selected = isAsteroids,
                     onClick = {
-                        if (!isAsteroids) navController.navigate(Screen.NeoWs.route)
+                        if (!isAsteroids) {
+                            navController.navigate(Screen.NeoWs.route) {
+                                popUpTo(Screen.Apod.route) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     },
                     icon = { Icon(Screen.NeoWs.icon, contentDescription = null) },
                     label = { Text(Screen.NeoWs.title) }
@@ -98,7 +110,35 @@ fun AppNavGraph(viewModel: ApodViewModel, modifier: Modifier = Modifier) {
                 )
             }
             composable(Screen.NeoWs.route) {
-                NeoWsPlaceholderScreen()
+                AsteroidListScreen(
+                    viewModel = neoWsViewModel,
+                    onNavigateToDetail = { asteroidId ->
+                        navController.navigate(Screen.NeoWsDetail.createRoute(asteroidId))
+                    },
+                    onNavigateToFavorites = {
+                        navController.navigate(Screen.NeoWsFavorites.route)
+                    }
+                )
+            }
+            composable(
+                route = Screen.NeoWsDetail.route,
+                arguments = listOf(navArgument("asteroidId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val asteroidId = backStackEntry.arguments?.getString("asteroidId") ?: ""
+                AsteroidDetailScreen(
+                    asteroidId = asteroidId,
+                    viewModel = neoWsViewModel,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.NeoWsFavorites.route) {
+                FavoritesScreen(
+                    viewModel = neoWsViewModel,
+                    onNavigateToDetail = { asteroidId ->
+                        navController.navigate(Screen.NeoWsDetail.createRoute(asteroidId))
+                    },
+                    onBackClick = { navController.popBackStack() }
+                )
             }
         }
     }

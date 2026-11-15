@@ -71,7 +71,9 @@ fun AsteroidListScreen(
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             shape = MaterialTheme.shapes.medium,
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                            tonalElevation = 0.dp,
+                            shadowElevation = 0.dp
                         ) {
                             Row(
                                 modifier = Modifier
@@ -105,7 +107,9 @@ fun AsteroidListScreen(
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 4.dp),
                                 shape = MaterialTheme.shapes.small,
-                                color = MaterialTheme.colorScheme.tertiaryContainer
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                tonalElevation = 0.dp,
+                                shadowElevation = 0.dp
                             ) {
                                 Row(
                                     modifier = Modifier.padding(12.dp),
@@ -197,7 +201,7 @@ fun AsteroidItemCard(
             .clickable(onClick = onClick),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
