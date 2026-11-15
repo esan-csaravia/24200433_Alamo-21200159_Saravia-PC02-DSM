@@ -1,12 +1,30 @@
 package com.example.pc2.data.local
 
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.pc2.data.local.neows.AsteroidDao
+import com.example.pc2.data.local.neows.AsteroidEntity
 
-/**
- * Infraestructura base de Room compartida.
- * Las anotaciones @Database, Entities y DAOs definitivos serán implementados
- * e integrados conjuntamente por los módulos APOD y NeoWs en sus respectivas ramas.
- */
+@Database(entities = [AsteroidEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-    // Convenciones compartidas de Room para la base de datos centralizada de la app.
+    abstract fun asteroidDao(): AsteroidDao
+
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+
+        fun getInstance(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "nasa_shared_database"
+                ).build()
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
 }
