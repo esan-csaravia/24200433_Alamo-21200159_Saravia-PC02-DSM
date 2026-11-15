@@ -13,7 +13,7 @@ val localProperties = Properties().apply {
         load(FileInputStream(localFile))
     }
 }
-val nasaApiKey = localProperties.getProperty("NASA_API_KEY", "DEMO_KEY")
+val nasaApiKey = localProperties.getProperty("NASA_API_KEY") ?: ""
 
 android {
     namespace = "com.example.pc2"
