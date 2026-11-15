@@ -17,7 +17,7 @@ interface AsteroidDao {
     @Query("SELECT * FROM asteroids WHERE id = :id")
     suspend fun getAsteroidById(id: String): AsteroidEntity?
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAsteroids(asteroids: List<AsteroidEntity>)
 
     @Query("UPDATE asteroids SET isFavorite = :isFavorite WHERE id = :id")
