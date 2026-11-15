@@ -17,6 +17,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.pc2.ui.navigation.NavGraph
 import com.example.pc2.ui.navigation.Screen
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.pc2.data.local.ApodDatabase
+import com.example.pc2.data.remote.ApodApiClient
+import com.example.pc2.data.repository.ApodRepository
+import com.example.pc2.presentation.apod.ApodViewModel
+import com.example.pc2.presentation.navigation.AppNavGraph
 import com.example.pc2.ui.theme.PC2Theme
 
 class MainActivity : ComponentActivity() {
@@ -60,8 +69,20 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     NavGraph(navController = navController, innerPadding = innerPadding)
+                val context = LocalContext.current.applicationContext
+                val repository = remember(context) {
+                    ApodRepository(
+                        dao = ApodDatabase.getDatabase(context).apodDao(),
+                        api = ApodApiClient.api,
+                        apiKey = BuildConfig.NASA_API_KEY
+                    )
                 }
+                val viewModel: ApodViewModel = viewModel(
+                    factory = ApodViewModel.factory(repository)
+                )
+                AppNavGraph(viewModel = viewModel, modifier = Modifier.fillMaxSize())
             }
         }
     }
+}
 }
