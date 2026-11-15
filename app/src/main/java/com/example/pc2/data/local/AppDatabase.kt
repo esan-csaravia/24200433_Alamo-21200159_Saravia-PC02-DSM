@@ -4,10 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.pc2.data.local.neows.AsteroidDao
+import com.example.pc2.data.local.neows.AsteroidEntity
 
-@Database(entities = [ApodEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ApodEntity::class, AsteroidEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun apodDao(): ApodDao
+    abstract fun asteroidDao(): AsteroidDao
 
     companion object {
         @Volatile
@@ -18,8 +21,10 @@ abstract class AppDatabase : RoomDatabase() {
                 instance ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "pc2_apod.db"
+                    "nasa_shared_database"
                 ).build().also { instance = it }
             }
+
+        fun getInstance(context: Context): AppDatabase = getDatabase(context)
     }
 }
