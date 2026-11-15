@@ -7,7 +7,7 @@ import androidx.compose.ui.test.performClick
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.pc2.data.local.ApodDatabase
+import com.example.pc2.data.local.AppDatabase
 import com.example.pc2.data.remote.ApodApi
 import com.example.pc2.data.remote.ApodDto
 import com.example.pc2.data.repository.ApodRepository
@@ -23,13 +23,13 @@ class AppNavGraphTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private lateinit var database: ApodDatabase
+    private lateinit var database: AppDatabase
 
     @Before
     fun setUp() {
         database = Room.inMemoryDatabaseBuilder(
             InstrumentationRegistry.getInstrumentation().targetContext,
-            ApodDatabase::class.java
+            AppDatabase::class.java
         ).build()
     }
 

@@ -1,6 +1,6 @@
-# Práctica Calificada 02 (DSM) - Infraestructura Base (`feature/base`)
+# Práctica Calificada 02 (DSM) - Diario espacial
 
-Este proyecto implementa la infraestructura compartida y la base de navegación para la **Práctica Calificada 02 (DSM)**, utilizando **Kotlin** y **Jetpack Compose**.
+Este proyecto combina la infraestructura compartida con la opción de imágenes APOD para la **Práctica Calificada 02 (DSM)**, utilizando **Kotlin** y **Jetpack Compose**. La opción de asteroides permanece como pantalla pendiente.
 
 ---
 
@@ -20,18 +20,26 @@ Este proyecto implementa la infraestructura compartida y la base de navegación 
 com.example.pc2/
 ├── data/
 │   ├── local/
-│   │   └── AppDatabase.kt        # Configuración base de Room
-│   └── remote/
-│       └── RetrofitClient.kt     # Clientes Retrofit con múltiples Base URLs
+│   │   ├── AppDatabase.kt        # Base Room compartida
+│   │   ├── ApodDao.kt
+│   │   └── ApodEntity.kt
+│   ├── remote/
+│   │   ├── RetrofitClient.kt     # Clientes Retrofit con múltiples Base URLs
+│   │   ├── ApodApi.kt
+│   │   └── ApodDto.kt
+│   └── repository/
+│       └── ApodRepository.kt
+├── presentation/
+│   ├── apod/                     # Pantallas y ViewModel de APOD
+│   └── navigation/
+│       └── AppNavGraph.kt        # Grafo y barra de navegación
 ├── ui/
 │   ├── navigation/
-│   │   ├── NavGraph.kt           # Grafo de navegación Compose
-│   │   └── Screen.kt             # Definición de rutas y destinos (APOD y NeoWs)
+│   │   └── Screen.kt             # Rutas principales de imágenes y asteroides
 │   ├── screens/
-│   │   ├── ApodPlaceholderScreen.kt   # Pantalla placeholder para APOD
-│   │   └── NeoWsPlaceholderScreen.kt  # Pantalla placeholder para NeoWs
+│   │   └── NeoWsPlaceholderScreen.kt  # Pantalla pendiente para asteroides
 │   └── theme/                    # Tema Material 3
-└── MainActivity.kt               # Contenedor principal con Scaffold y Bottom Navigation
+└── MainActivity.kt               # Configuración y entrada a la aplicación
 ```
 
 ---
@@ -44,13 +52,13 @@ Para acceder a las APIs de la NASA, es necesario configurar tu `NASA_API_KEY` en
 NASA_API_KEY=tu_api_key_aqui
 ```
 
-Si no se especifica ninguna clave, el sistema utilizará `"DEMO_KEY"` por defecto. El archivo `local.properties` está excluido del control de versiones mediante `.gitignore`.
+La aplicación muestra un error si no se configura la clave; no utiliza `DEMO_KEY`. El archivo `local.properties` está excluido del control de versiones mediante `.gitignore`. La clave se incorpora al APK mediante `BuildConfig`, por lo que no es secreta frente a quien tenga acceso al APK.
 
 ---
 
 ## 🛠️ Procedimiento de Integración para Ramas de Características (`feature/apod` y `feature/neows`)
 
-Las ramas de características (`feature/apod` y `feature/neows`) deben construirse sobre esta infraestructura base (`feature/base`) siguiendo estas directrices:
+Las ramas de características deben integrarse sobre la infraestructura compartida siguiendo estas directrices:
 
 1. **Creación de Modelos y Datos:**
    - Implementar DTOs y Servicios API utilizando las instancias de Retrofit (`RetrofitClient.scienceRetrofit` o `RetrofitClient.apiRetrofit`).
@@ -61,4 +69,4 @@ Las ramas de características (`feature/apod` y `feature/neows`) deben construir
    - Implementar Repositorios que unifiquen el origen de datos remoto y local (Room).
    - Crear ViewModels utilizando `StateFlow` para exponer el estado UI de forma reactiva.
 4. **Pantallas Funcionales:**
-   - Reemplazar las pantallas placeholder (`ApodPlaceholderScreen` y `NeoWsPlaceholderScreen`) por las pantallas funcionales definitivas integradas al `NavGraph`.
+   - Mantener las pantallas APOD integradas en `AppNavGraph` y sustituir `NeoWsPlaceholderScreen` cuando se implemente la opción de asteroides.

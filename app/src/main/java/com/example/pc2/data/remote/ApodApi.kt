@@ -1,7 +1,5 @@
 package com.example.pc2.data.remote
 
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -16,10 +14,6 @@ interface ApodApi {
 
 object ApodApiClient {
     val api: ApodApi by lazy {
-        Retrofit.Builder()
-            .baseUrl("https://science.nasa.gov/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApodApi::class.java)
+        RetrofitClient.scienceRetrofit.create(ApodApi::class.java)
     }
 }

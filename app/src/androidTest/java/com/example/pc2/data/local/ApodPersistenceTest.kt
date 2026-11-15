@@ -22,7 +22,7 @@ import java.util.UUID
 @RunWith(AndroidJUnit4::class)
 class ApodPersistenceTest {
     private lateinit var context: Context
-    private lateinit var database: ApodDatabase
+    private lateinit var database: AppDatabase
     private val databaseName = "apod-test-${UUID.randomUUID()}.db"
 
     @Before
@@ -65,8 +65,8 @@ class ApodPersistenceTest {
         assertFalse(reopened.observeImage(today).first()!!.isFavorite)
     }
 
-    private fun openDatabase(): ApodDatabase =
-        Room.databaseBuilder(context, ApodDatabase::class.java, databaseName).build()
+    private fun openDatabase(): AppDatabase =
+        Room.databaseBuilder(context, AppDatabase::class.java, databaseName).build()
 
     private class FakeApodApi(private val date: String) : ApodApi {
         var title = "Primera versión"

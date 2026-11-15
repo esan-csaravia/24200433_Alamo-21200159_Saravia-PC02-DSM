@@ -1,11 +1,6 @@
 package com.example.pc2.presentation.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -15,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -27,11 +21,11 @@ import com.example.pc2.presentation.apod.ApodDetailScreen
 import com.example.pc2.presentation.apod.ApodFavoritesScreen
 import com.example.pc2.presentation.apod.ApodListScreen
 import com.example.pc2.presentation.apod.ApodViewModel
+import com.example.pc2.ui.navigation.Screen
+import com.example.pc2.ui.screens.NeoWsPlaceholderScreen
 
-private const val APOD_LIST_ROUTE = "apod"
 private const val APOD_FAVORITES_ROUTE = "apod/favorites"
 private const val APOD_DETAIL_ROUTE = "apod/{date}"
-private const val ASTEROIDS_ROUTE = "asteroids"
 
 @Composable
 fun AppNavGraph(viewModel: ApodViewModel, modifier: Modifier = Modifier) {
@@ -40,7 +34,7 @@ fun AppNavGraph(viewModel: ApodViewModel, modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsState()
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val isAsteroids = backStackEntry?.destination?.route == ASTEROIDS_ROUTE
+    val isAsteroids = backStackEntry?.destination?.route == Screen.NeoWs.route
 
     Scaffold(
         modifier = modifier,
@@ -50,29 +44,29 @@ fun AppNavGraph(viewModel: ApodViewModel, modifier: Modifier = Modifier) {
                     selected = !isAsteroids,
                     onClick = {
                         if (isAsteroids) {
-                            navController.popBackStack(ASTEROIDS_ROUTE, inclusive = true)
+                            navController.popBackStack(Screen.NeoWs.route, inclusive = true)
                         }
                     },
-                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                    label = { Text("Imágenes") }
+                    icon = { Icon(Screen.Apod.icon, contentDescription = null) },
+                    label = { Text(Screen.Apod.title) }
                 )
                 NavigationBarItem(
                     selected = isAsteroids,
                     onClick = {
-                        if (!isAsteroids) navController.navigate(ASTEROIDS_ROUTE)
+                        if (!isAsteroids) navController.navigate(Screen.NeoWs.route)
                     },
-                    icon = { Icon(Icons.Default.Star, contentDescription = null) },
-                    label = { Text("Asteroides") }
+                    icon = { Icon(Screen.NeoWs.icon, contentDescription = null) },
+                    label = { Text(Screen.NeoWs.title) }
                 )
             }
         }
     ) {
         NavHost(
             navController = navController,
-            startDestination = APOD_LIST_ROUTE,
+            startDestination = Screen.Apod.route,
             modifier = Modifier.padding(it)
         ) {
-            composable(APOD_LIST_ROUTE) {
+            composable(Screen.Apod.route) {
                 ApodListScreen(
                     images = images,
                     uiState = uiState,
@@ -103,10 +97,8 @@ fun AppNavGraph(viewModel: ApodViewModel, modifier: Modifier = Modifier) {
                     onToggleFavorite = viewModel::toggleFavorite
                 )
             }
-            composable(ASTEROIDS_ROUTE) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Sección de asteroides pendiente.")
-                }
+            composable(Screen.NeoWs.route) {
+                NeoWsPlaceholderScreen()
             }
         }
     }
